@@ -42,7 +42,6 @@ class Categorie
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -54,7 +53,6 @@ class Categorie
     public function setDescription(?string $description): static
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -72,19 +70,16 @@ class Categorie
             $this->produits->add($produit);
             $produit->setCategorie($this);
         }
-
         return $this;
     }
 
     public function removeProduit(Produit $produit): static
     {
         if ($this->produits->removeElement($produit)) {
-            // set the owning side to null (unless already changed)
             if ($produit->getCategorie() === $this) {
                 $produit->setCategorie(null);
             }
         }
-
         return $this;
     }
 
@@ -92,4 +87,4 @@ class Categorie
     {
         return $this->nom ?? '';
     }
-} 
+}

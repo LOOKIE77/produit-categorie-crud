@@ -3,3 +3,11 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+    # config/routes.yaml
+app_products:
+    path: /products
+    controller: App\Controller\ProductController::index
+
+app_product_show:
+    path: /product/{id}
+    controller: App\Controller\ProductController::show

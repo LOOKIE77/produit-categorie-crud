@@ -123,3 +123,44 @@
     </div>
 </div>
 {% endblock %} 
+{# templates/product/show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                {% if product.image %}
+                    <img src="{{ asset('uploads/products/' ~ product.image) }}" 
+                         class="img-fluid rounded" 
+                         alt="{{ product.name }}">
+                {% else %}
+                    <div class="bg-light p-5 text-center">
+                        <span class="text-muted">Aucune image disponible</span>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h1>{{ product.name }}</h1>
+                <p class="text-muted">Catégorie: {{ product.category.name }}</p>
+                <h3 class="text-primary">{{ product.price|format_currency('EUR') }}</h3>
+                
+                <div class="my-4">
+                    <h4>Description</h4>
+                    <p>{{ product.description }}</p>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <div class="input-group" style="width: 120px;">
+                        <button class="btn btn-outline-secondary" type="button">-</button>
+                        <input type="text" class="form-control text-center" value="1">
+                        <button class="btn btn-outline-secondary" type="button">+</button>
+                    </div>
+                    <button class="btn btn-primary">Ajouter au panier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

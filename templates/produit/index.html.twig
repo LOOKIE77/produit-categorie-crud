@@ -1,30 +1,31 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Produits - Gestion Produits{% endblock %}
+{% block title %}Nos produits{% endblock %}
 
 {% block body %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>
-        <i class="bi bi-box"></i> Produits
-    </h1>
-    {% if is_granted('ROLE_ADMIN') %}
-        <a href="{{ path('app_produit_new') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Nouveau Produit
-        </a>
-    {% endif %}
-</div>
+    <h1>Nos produits</h1>
 
-{% if produits is empty %}
-    <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i> Aucun produit disponible.
-        {% if is_granted('ROLE_ADMIN') %}
-            <a href="{{ path('app_produit_new') }}" class="alert-link">Créer le premier produit</a>
-        {% endif %}
+    {# Filtres par catégorie #}
+    <div class="mb-4">
+        <h3>Filtrer par catégorie</h3>
+        <div class="btn-group" role="group">
+            <a href="{{ path('app_produit_index') }}" 
+               class="btn btn-{{ currentCategory is null ? 'primary' : 'outline-primary' }}">
+                Toutes les catégories
+            </a>
+            {% for categorie in categories %}
+                <a href="{{ path('app_produit_index', {'category': categorie.id}) }}" 
+                   class="btn btn-{{ currentCategory == categorie.id ? 'primary' : 'outline-primary' }}">
+                    {{ categorie.nom }}
+                </a>
+            {% endfor %}
+        </div>
     </div>
-{% else %}
+
+    {# Liste des produits #}
     <div class="row">
         {% for produit in produits %}
-            <div class="col-md-6 col-lg-4 mb-4">
+            <div class="col-md-4 mb-4">
                 <div class="card h-100">
                     {% if produit.image %}
                         <img src="{{ asset('uploads/produits/' ~ produit.image) }}" class="card-img-top" alt="{{ produit.nom }}" style="height: 200px; object-fit: cover;">
@@ -43,36 +44,45 @@
                         
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <span class="h5 text-primary mb-0">{{ produit.prix|number_format(2, ',', ' ') }} €</span>
+                                <span class="h5 text-primary mb-0">{{ (produit.prix / 100)|number_format(2, ',', ' ') }} €</span>
                                 <br>
                                 <span class="badge bg-{{ produit.stock <= 5 ? 'danger' : 'success' }}">Stock: {{ produit.stock }}</span>
                             </div>
-                            <div class="btn-group" role="group">
-                                <a href="{{ path('app_produit_show', {'id': produit.id}) }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-eye"></i> Voir
-                                </a>
-                                {% if is_granted('ROLE_ADMIN') %}
-                                    <a href="{{ path('app_produit_edit', {'id': produit.id}) }}" class="btn btn-sm btn-outline-warning">
-                                        <i class="bi bi-pencil"></i> Modifier
-                                    </a>
-                                {% endif %}
-                            </div>
+                            <a href="{{ path('app_produit_show', {'id': produit.id}) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> Voir
+                            </a>
                         </div>
                     </div>
-                    
-                    {% if is_granted('ROLE_ADMIN') %}
-                        <div class="card-footer">
-                            <form method="post" action="{{ path('app_produit_delete', {'id': produit.id}) }}" style="display: inline-block" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
-                                <button class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash"></i> Supprimer
-                                </button>
-                            </form>
-                        </div>
-                    {% endif %}
                 </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">Aucun produit trouvé</div>
             </div>
         {% endfor %}
     </div>
-{% endif %}
-{% endblock %} 
+    <li class="nav-item">
+    <a class="nav-link" href="{{ path('app_panier') }}">
+        <i class="bi bi-cart"></i> Panier
+        {% if app.session.get('panier')|default([])|length > 0 %}
+            <span class="badge bg-danger rounded-pill">
+                {{ app.session.get('panier')|reduce((carry, item) => carry + item) }}
+            </span>
+        {% endif %}
+    </a>
+</li>
+
+{% for produit in produits %}
+    <div class="product-item">
+        {# ... autres infos du produit ... #}
+        
+        <form method="post" action="{{ path('app_produit_delete', {'id': produit.id}) }}" 
+              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+            <button type="submit" class="btn btn-danger btn-sm">
+                <i class="bi bi-trash"></i> Supprimer
+            </button>
+        </form>
+    </div>
+{% endfor %}
+{% endblock %}
